@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MercadoTest - Demo de Anuncios</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', system-ui, sans-serif; background: #ebebeb; color: #333; }
+    
+    /* Header */
+    .header {
+      background: linear-gradient(180deg, #ffe600 0%, #f5d000 100%);
+      padding: 0.75rem 0;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .header-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 1rem;
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+    .logo {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #2d3277;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .search-bar {
+      flex: 1;
+      max-width: 600px;
+      display: flex;
+      background: #fff;
+      border-radius: 4px;
+      overflow: hidden;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    }
+    .search-bar input {
+      flex: 1;
+      padding: 0.75rem 1rem;
+      border: none;
+      font-size: 0.95rem;
+      outline: none;
+    }
+    .search-bar button {
+      padding: 0 1rem;
+      background: #ebebeb;
+      border: none;
+      cursor: pointer;
+      color: #666;
+    }
+    .header-nav {
+      display: flex;
+      gap: 1.5rem;
+      font-size: 0.85rem;
+    }
+    .header-nav a { color: #333; text-decoration: none; }
+    .header-nav a:hover { text-decoration: underline; }
+    
+    /* Connection Status */
+    .connection-badge {
+      position: fixed;
+      bottom: 1rem;
+      right: 1rem;
+      background: #fff;
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+      z-index: 1000;
+    }
+    .connection-badge .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #e53935;
+    }
+    .connection-badge .dot.connected { background: #00a650; }
+    
+    /* Main Layout */
+    .main { max-width: 1200px; margin: 0 auto; padding: 1rem; }
+    
+    /* Banner Section */
+    .banner-section {
+      margin-bottom: 1.5rem;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    .banner-carousel {
+      position: relative;
+      background: linear-gradient(135deg, #2d3277 0%, #1a1d4a 100%);
+      min-height: 200px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+    }
+    .banner-placeholder {
+      text-align: center;
+      padding: 2rem;
+      color: rgba(255,255,255,0.5);
+    }
+    
+    /* Ad Banner */
+    .ad-banner {
+      position: relative;
+      background: linear-gradient(135deg, #2d3277 0%, #4a4fb5 100%);
+      border-radius: 6px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      min-height: 180px;
+    }
+    .ad-banner img {
+      width: 40%;
+      height: 180px;
+      object-fit: cover;
+    }
+    .ad-banner .ad-content {
+      flex: 1;
+      padding: 1.5rem 2rem;
+      color: #fff;
+    }
+    .ad-banner h3 { font-size: 1.5rem; margin-bottom: 0.5rem; }
+    .ad-banner p { font-size: 0.95rem; opacity: 0.9; margin-bottom: 1rem; }
+    .ad-banner .cta {
+      display: inline-block;
+      padding: 0.6rem 1.5rem;
+      background: #ffe600;
+      color: #333;
+      border-radius: 4px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      border: none;
+    }
+    .ad-banner .cta:hover { background: #f5d000; }
+    .ad-banner .close-btn {
+      position: absolute;
+      top: 0.75rem;
+      right: 0.75rem;
+      width: 28px;
+      height: 28px;
+      background: rgba(0,0,0,0.3);
+      border: none;
+      border-radius: 50%;
+      color: #fff;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    .ad-banner .ad-tag {
+      position: absolute;
+      top: 0.75rem;
+      left: 0.75rem;
+      background: rgba(0,0,0,0.4);
+      color: #fff;
+      font-size: 0.65rem;
+      padding: 0.2rem 0.5rem;
+      border-radius: 3px;
+      text-transform: uppercase;
+    }
+    
+    /* Content Grid */
+    .content-grid {
+      display: grid;
+      grid-template-columns: 1fr 300px;
+      gap: 1.5rem;
+    }
+    
+    /* Products Section */
+    .products-section {
+      background: #fff;
+      border-radius: 6px;
+      padding: 1.25rem;
+    }
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid #eee;
+    }
+    .section-title { font-size: 1.25rem; font-weight: 600; color: #333; }
+    .see-all { color: #3483fa; text-decoration: none; font-size: 0.9rem; }
+    
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 1rem;
+    }
+    .product-card {
+      background: #fff;
+      border-radius: 4px;
+      overflow: hidden;
+      transition: box-shadow 0.2s;
+      cursor: pointer;
+      border: 1px solid #eee;
+    }
+    .product-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    .product-card img {
+      width: 100%;
+      height: 160px;
+      object-fit: contain;
+      background: #fafafa;
+      padding: 1rem;
+    }
+    .product-card .info { padding: 0.75rem; }
+    .product-card .price {
+      font-size: 1.25rem;
+      font-weight: 400;
+      color: #333;
+      margin-bottom: 0.25rem;
+    }
+    .product-card .name {
+      font-size: 0.85rem;
+      color: #666;
+      line-height: 1.3;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .product-card .shipping {
+      font-size: 0.75rem;
+      color: #00a650;
+      margin-top: 0.5rem;
+      font-weight: 500;
+    }
+    
+    /* Sidebar */
+    .sidebar { display: flex; flex-direction: column; gap: 1rem; }
+    
+    .sidebar-card {
+      background: #fff;
+      border-radius: 6px;
+      padding: 1rem;
+    }
+    .sidebar-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 0.75rem;
+      color: #333;
+    }
+    
+    /* Sidebar Ad */
+    .ad-sidebar {
+      background: linear-gradient(135deg, #f5f5f5 0%, #fff 100%);
+      border-radius: 6px;
+      overflow: hidden;
+      border: 1px solid #ddd;
+      position: relative;
+    }
+    .ad-sidebar img {
+      width: 100%;
+      height: 140px;
+      object-fit: cover;
+    }
+    .ad-sidebar .ad-content { padding: 1rem; }
+    .ad-sidebar h4 { font-size: 1rem; margin-bottom: 0.5rem; color: #333; }
+    .ad-sidebar p { font-size: 0.85rem; color: #666; margin-bottom: 0.75rem; }
+    .ad-sidebar .cta {
+      display: inline-block;
+      padding: 0.5rem 1rem;
+      background: #3483fa;
+      color: #fff;
+      border-radius: 4px;
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 500;
+      border: none;
+      cursor: pointer;
+    }
+    .ad-sidebar .cta:hover { background: #2968c8; }
+    .ad-sidebar .close-btn {
+      position: absolute;
+      top: 0.5rem;
+      right: 0.5rem;
+      width: 24px;
+      height: 24px;
+      background: rgba(0,0,0,0.5);
+      border: none;
+      border-radius: 50%;
+      color: #fff;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .ad-sidebar .ad-tag {
+      position: absolute;
+      top: 0.5rem;
+      left: 0.5rem;
+      background: rgba(0,0,0,0.5);
+      color: #fff;
+      font-size: 0.6rem;
+      padding: 0.15rem 0.4rem;
+      border-radius: 3px;
+    }
+    
+    /* Categories */
+    .categories-list { display: flex; flex-direction: column; gap: 0.5rem; }
+    .categories-list a {
+      color: #333;
+      text-decoration: none;
+      font-size: 0.85rem;
+      padding: 0.4rem 0;
+      border-bottom: 1px solid #f5f5f5;
+    }
+    .categories-list a:hover { color: #3483fa; }
+    
+    /* Popup Ad */
+    .popup-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      animation: fadeIn 0.2s ease;
+    }
+    .popup-overlay.hidden { display: none; }
+    .ad-popup {
+      background: #fff;
+      border-radius: 8px;
+      overflow: hidden;
+      max-width: 450px;
+      width: 90%;
+      position: relative;
+      animation: popIn 0.3s ease;
+    }
+    .ad-popup img { width: 100%; height: 200px; object-fit: cover; }
+    .ad-popup .ad-content { padding: 1.5rem; text-align: center; }
+    .ad-popup h3 { font-size: 1.4rem; margin-bottom: 0.75rem; color: #333; }
+    .ad-popup p { font-size: 0.95rem; color: #666; margin-bottom: 1rem; }
+    .ad-popup .cta {
+      display: inline-block;
+      padding: 0.75rem 2rem;
+      background: #3483fa;
+      color: #fff;
+      border-radius: 6px;
+      text-decoration: none;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+    }
+    .ad-popup .close-btn {
+      position: absolute;
+      top: 0.75rem;
+      right: 0.75rem;
+      width: 32px;
+      height: 32px;
+      background: rgba(0,0,0,0.5);
+      border: none;
+      border-radius: 50%;
+      color: #fff;
+      cursor: pointer;
+      font-size: 18px;
+    }
+    .ad-popup .timer {
+      position: absolute;
+      bottom: 1rem;
+      right: 1rem;
+      background: rgba(0,0,0,0.6);
+      color: #fff;
+      padding: 0.25rem 0.75rem;
+      border-radius: 4px;
+      font-size: 0.8rem;
+    }
+    
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes popIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+    
+    /* Toast */
+    .toast-container { position: fixed; top: 5rem; right: 1rem; z-index: 1001; display: flex; flex-direction: column; gap: 0.5rem; }
+    .toast {
+      background: #fff;
+      border-radius: 6px;
+      padding: 1rem 1.25rem;
+      min-width: 300px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      animation: slideIn 0.3s ease;
+      border-left: 4px solid #3483fa;
+    }
+    .toast.success { border-left-color: #00a650; }
+    .toast.warning { border-left-color: #f5a623; }
+    .toast.promo { border-left-color: #a855f7; }
+    .toast-title { font-weight: 600; margin-bottom: 0.25rem; color: #333; }
+    .toast-message { font-size: 0.85rem; color: #666; }
+    @keyframes slideIn { from { opacity: 0; transform: translateX(100px); } to { opacity: 1; transform: translateX(0); } }
+    
+    /* Logs Panel */
+    .logs-panel {
+      position: fixed;
+      bottom: 3.5rem;
+      right: 1rem;
+      width: 350px;
+      background: #1a1a2e;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+      z-index: 999;
+      display: none;
+    }
+    .logs-panel.open { display: block; }
+    .logs-header {
+      background: #0f0f23;
+      padding: 0.75rem 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: #fff;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+    .logs-header button { background: none; border: none; color: #888; cursor: pointer; }
+    .logs-content {
+      max-height: 250px;
+      overflow-y: auto;
+      padding: 0.75rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+    }
+    .log-entry { padding: 0.3rem 0; border-bottom: 1px solid #2a2a3e; color: #10b981; }
+    .log-entry.error { color: #ef4444; }
+    .log-entry.event { color: #f59e0b; }
+    .log-entry.notif { color: #a855f7; }
+    
+    .toggle-logs {
+      position: fixed;
+      bottom: 1rem;
+      right: 8rem;
+      background: #1a1a2e;
+      color: #fff;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      z-index: 1000;
+    }
+    
+    /* Empty State */
+    .empty-state { text-align: center; padding: 2rem; color: #999; font-size: 0.9rem; }
+    
+    /* Responsive */
+    @media (max-width: 900px) {
+      .content-grid { grid-template-columns: 1fr; }
+      .sidebar { order: -1; }
+      .header-nav { display: none; }
+      .ad-banner { flex-direction: column; }
+      .ad-banner img { width: 100%; height: 150px; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="header-content">
+      <a href="#" class="logo">🛒 MercadoTest</a>
+      <div class="search-bar">
+        <input type="text" placeholder="Buscar productos, marcas y más...">
+        <button>🔍</button>
+      </div>
+      <nav class="header-nav">
+        <a href="#">Categorías</a>
+        <a href="#">Ofertas</a>
+        <a href="#">Historial</a>
+        <a href="#">🛒 Carrito</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="main">
+    <!-- Banner Section -->
+    <section class="banner-section" id="banner-section">
+      <div class="banner-carousel">
+        <div class="banner-placeholder">📢 Espacio para Banner Publicitario</div>
+      </div>
+    </section>
+
+    <!-- Content Grid -->
+    <div class="content-grid">
+      <!-- Products -->
+      <div class="products-section">
+        <div class="section-header">
+          <h2 class="section-title">Ofertas del día</h2>
+          <a href="#" class="see-all">Ver todas</a>
+        </div>
+        <div class="products-grid" id="products-grid">
+          <!-- Fake products -->
+        </div>
+      </div>
+
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <div class="sidebar-card">
+          <div class="sidebar-title">Categorías</div>
+          <div class="categories-list">
+            <a href="#">Tecnología</a>
+            <a href="#">Hogar</a>
+            <a href="#">Ropa</a>
+            <a href="#">Deportes</a>
+            <a href="#">Juguetes</a>
+          </div>
+        </div>
+        
+        <!-- Sidebar Ads Container -->
+        <div id="sidebar-ads"></div>
+        
+        <div class="sidebar-card">
+          <div class="sidebar-title">Vender es fácil</div>
+          <p style="font-size: 0.85rem; color: #666; margin-bottom: 0.75rem;">Publicá tu primer producto gratis</p>
+          <button style="width: 100%; padding: 0.6rem; background: #3483fa; color: #fff; border: none; border-radius: 4px; cursor: pointer;">Empezar a vender</button>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <!-- Popup Container -->
+  <div class="popup-overlay hidden" id="popup-overlay"></div>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- Logs Panel -->
+  <div class="logs-panel" id="logs-panel">
+    <div class="logs-header">
+      <span>📋 WebSocket Logs</span>
+      <button onclick="toggleLogs()">✕</button>
+    </div>
+    <div class="logs-content" id="logs"></div>
+  </div>
+
+  <!-- Connection Badge -->
+  <div class="connection-badge">
+    <span class="dot" id="status-dot"></span>
+    <span id="status-text">Conectando...</span>
+  </div>
+  
+  <button class="toggle-logs" onclick="toggleLogs()">📋 Logs</button>
+
+  <script src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script>
+  <script>
+    const SERVER = 'http://localhost:3000';
+    const socket = io(SERVER);
+    const $ = id => document.getElementById(id);
+    const timers = {};
+    let logsOpen = false;
+
+    // Fake products
+    const fakeProducts = [
+      { name: 'Auriculares Bluetooth Pro', price: 45999, img: 'https://http2.mlstatic.com/D_NQ_NP_2X_704311-MLA54816608638_042023-F.webp' },
+      { name: 'Smart TV 50" 4K UHD', price: 389999, img: 'https://http2.mlstatic.com/D_NQ_NP_2X_997634-MLU74759701498_022024-F.webp' },
+      { name: 'Zapatillas Running Nike', price: 89999, img: 'https://http2.mlstatic.com/D_NQ_NP_2X_865756-MLA46102655498_052021-F.webp' },
+      { name: 'Notebook 15.6" Core i5', price: 599999, img: 'https://http2.mlstatic.com/D_NQ_NP_2X_611073-MLA48659655498_122021-F.webp' },
+      { name: 'Smartphone 128GB', price: 299999, img: 'https://http2.mlstatic.com/D_NQ_NP_2X_649803-MLA71783088498_092023-F.webp' },
+      { name: 'Cámara Digital 24MP', price: 185999, img: 'https://http2.mlstatic.com/D_NQ_NP_2X_789803-MLA48117466214_112021-F.webp' }
+    ];
+
+    function renderFakeProducts() {
+      $('products-grid').innerHTML = fakeProducts.map(p => `
+        <div class="product-card">
+          <img src="${p.img}" alt="${p.name}" onerror="this.src='https://via.placeholder.com/200?text=Producto'">
+          <div class="info">
+            <div class="price">$ ${p.price.toLocaleString()}</div>
+            <div class="name">${p.name}</div>
+            <div class="shipping">Envío gratis</div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function toggleLogs() {
+      logsOpen = !logsOpen;
+      $('logs-panel').classList.toggle('open', logsOpen);
+    }
+
+    const log = (msg, type = 'info') => {
+      const el = document.createElement('div');
+      el.className = `log-entry ${type}`;
+      el.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+      $('logs').prepend(el);
+    };
+
+    // Socket events
+    socket.on('connect', () => {
+      $('status-dot').classList.add('connected');
+      $('status-text').textContent = 'Conectado';
+      log('✅ Conectado al servidor', 'info');
+    });
+
+    socket.on('disconnect', () => {
+      $('status-dot').classList.remove('connected');
+      $('status-text').textContent = 'Desconectado';
+      log('❌ Desconectado', 'error');
+    });
+
+    socket.on('ads_update', ({ ads }) => {
+      log(`📦 ${ads.length} anuncios recibidos`, 'event');
+      console.log('📦 ads_update:', JSON.stringify(ads, null, 2));
+      renderBannerAds(ads.filter(a => a.type === 'banner'));
+      renderSidebarAds(ads.filter(a => a.type === 'sidebar'));
+      renderPopupAds(ads.filter(a => a.type === 'popup'));
+    });
+
+    socket.on('ad_created', ({ ad }) => log(`✨ Nuevo: ${ad.title}`, 'event'));
+    socket.on('ad_updated', ({ ad }) => log(`✏️ Editado: ${ad.title}`, 'event'));
+    socket.on('ad_deleted', ({ id }) => log(`🗑️ Eliminado: ID ${id}`, 'error'));
+    socket.on('ad_click', ({ id, clicks }) => log(`👆 Click ID ${id} (${clicks})`, 'info'));
+    socket.on('notification', (n) => { log(`🔔 ${n.title}`, 'notif'); showToast(n); });
+
+    function renderBannerAds(ads) {
+      const container = $('banner-section');
+      if (!ads.length) {
+        container.innerHTML = `<div class="banner-carousel"><div class="banner-placeholder">📢 Espacio para Banner</div></div>`;
+        return;
+      }
+      const ad = ads[0];
+      const opts = ad.options || {};
+      container.innerHTML = `
+        <div class="ad-banner" id="ad-${ad.id}">
+          <span class="ad-tag">Publicidad</span>
+          ${opts.show_close_btn !== false ? `<button class="close-btn" onclick="closeAd(${ad.id})">✕</button>` : ''}
+          ${opts.show_image !== false && ad.image_url ? `<img src="${ad.image_url}" alt="${ad.title}">` : ''}
+          <div class="ad-content" style="text-align:${opts.text_align || 'left'}">
+            <h3 style="font-size:${opts.title_size === 'large' ? '2rem' : opts.title_size === 'small' ? '1.2rem' : '1.5rem'}">${ad.title}</h3>
+            ${opts.show_description !== false && ad.content ? `<p>${ad.content}</p>` : ''}
+            ${opts.show_button ? `<button class="cta" onclick="clickAd(${ad.id}, '${opts.button_url || ad.link_url}')">${opts.button_text || 'Ver oferta'}</button>` : ''}
+          </div>
+        </div>
+      `;
+      if (opts.auto_close) startAutoClose(ad.id, opts.auto_close_time || 5);
+    }
+
+    function renderSidebarAds(ads) {
+      const container = $('sidebar-ads');
+      if (!ads.length) { container.innerHTML = ''; return; }
+      container.innerHTML = ads.map(ad => {
+        const opts = ad.options || {};
+        return `
+          <div class="ad-sidebar" id="ad-${ad.id}">
+            <span class="ad-tag">Ad</span>
+            ${opts.show_close_btn !== false ? `<button class="close-btn" onclick="closeAd(${ad.id})">✕</button>` : ''}
+            ${opts.show_image !== false && ad.image_url ? `<img src="${ad.image_url}" alt="${ad.title}">` : ''}
+            <div class="ad-content" style="text-align:${opts.text_align || 'left'}">
+              <h4>${ad.title}</h4>
+              ${opts.show_description !== false && ad.content ? `<p>${ad.content}</p>` : ''}
+              ${opts.show_button ? `<button class="cta" onclick="clickAd(${ad.id}, '${opts.button_url || ad.link_url}')">${opts.button_text || 'Ver más'}</button>` : ''}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderPopupAds(ads) {
+      const overlay = $('popup-overlay');
+      if (!ads.length) { overlay.classList.add('hidden'); return; }
+      const ad = ads[0];
+      const opts = ad.options || {};
+      overlay.classList.remove('hidden');
+      overlay.innerHTML = `
+        <div class="ad-popup" id="ad-${ad.id}">
+          <button class="close-btn" onclick="closePopup()">✕</button>
+          ${opts.show_image !== false && ad.image_url ? `<img src="${ad.image_url}" alt="${ad.title}">` : ''}
+          <div class="ad-content">
+            <h3>${ad.title}</h3>
+            ${opts.show_description !== false && ad.content ? `<p>${ad.content}</p>` : ''}
+            ${opts.show_button ? `<button class="cta" onclick="clickAd(${ad.id}, '${opts.button_url || ad.link_url}')">${opts.button_text || 'Ver oferta'}</button>` : ''}
+          </div>
+          ${opts.auto_close ? `<span class="timer" id="timer-${ad.id}">${opts.auto_close_time || 5}s</span>` : ''}
+        </div>
+      `;
+      if (opts.auto_close) startAutoClose(ad.id, opts.auto_close_time || 5, true);
+    }
+
+    function startAutoClose(adId, seconds, isPopup = false) {
+      if (timers[adId]) clearInterval(timers[adId]);
+      let remaining = seconds;
+      const timerEl = $(`timer-${adId}`);
+      timers[adId] = setInterval(() => {
+        remaining--;
+        if (timerEl) timerEl.textContent = `${remaining}s`;
+        if (remaining <= 0) {
+          clearInterval(timers[adId]);
+          isPopup ? closePopup() : closeAd(adId);
+        }
+      }, 1000);
+    }
+
+    function closeAd(id) {
+      const el = $(`ad-${id}`);
+      if (el) { el.style.opacity = '0'; setTimeout(() => el.remove(), 200); }
+      if (timers[id]) clearInterval(timers[id]);
+      log(`🚫 Cerrado ID ${id}`, 'event');
+    }
+
+    function closePopup() {
+      $('popup-overlay').classList.add('hidden');
+      Object.keys(timers).forEach(k => clearInterval(timers[k]));
+    }
+
+    function clickAd(id, url) {
+      socket.emit('ad_click', { adId: id });
+      log(`🖱️ Click ID ${id}`, 'event');
+      if (url && url !== '#') window.open(url, '_blank');
+    }
+
+    function showToast(n) {
+      const toast = document.createElement('div');
+      toast.className = `toast ${n.type || 'info'}`;
+      toast.innerHTML = `<div class="toast-title">${n.title}</div><div class="toast-message">${n.message}</div>`;
+      $('toast-container').appendChild(toast);
+      setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 5000);
+    }
+
+    // Init
+    renderFakeProducts();
+  </script>
+</body>
+</html>
